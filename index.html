@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conexion Vid-Radio - Player Premium</title>
+    <title>Conexion Vid-Radio - Player Avanzado</title>
     <meta name="theme-color" content="#4CAF50">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --highlight-color: rgba(76, 175, 80, 0.9);
             --background-color: #121212;
-            --card-color: rgba(30, 30, 30, 0.7);
+            --card-color: rgba(30, 30, 30, 0.5);
             --text-color: rgba(255, 255, 255, 0.9);
             --secondary-text: rgba(179, 179, 179, 0.8);
             --glass-effect: rgba(255, 255, 255, 0.05);
@@ -212,24 +212,6 @@
             border-radius: 8px;
         }
         
-        .visualizer {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            height: 60px;
-            gap: 4px;
-            margin-top: 15px;
-            padding: 0 10px;
-        }
-        
-        .visualizer-bar {
-            width: 8px;
-            background: linear-gradient(to top, var(--highlight-color), rgba(76, 175, 80, 0.3));
-            border-radius: 4px 4px 0 0;
-            transition: height 0.1s ease;
-            height: 10px;
-        }
-        
         .loading {
             display: inline-block;
             width: 20px;
@@ -275,43 +257,33 @@
             box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
         }
         
-        .audio-waves {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        .troubleshooting {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .troubleshooting h4 {
+            margin: 0 0 8px 0;
+            color: #ff5555;
+        }
+        
+        .troubleshooting ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .troubleshooting li {
+            margin-bottom: 5px;
+        }
+        
+        .native-player {
+            display: none;
             width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            opacity: 0.1;
-        }
-        
-        .wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 200%;
-            height: 20px;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="%234CAF50" stroke-width="0.5"/></svg>') repeat-x;
-            animation: wave-animation 15s linear infinite;
-            opacity: 0.3;
-        }
-        
-        .wave:nth-child(2) {
-            animation-delay: -5s;
-            bottom: 10px;
-            opacity: 0.2;
-        }
-        
-        .wave:nth-child(3) {
-            animation-delay: -10s;
-            bottom: 20px;
-            opacity: 0.1;
-        }
-        
-        @keyframes wave-animation {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            margin-top: 15px;
         }
         
         @media (max-width: 480px) {
@@ -337,12 +309,6 @@
 </head>
 <body>
     <div class="player-container">
-        <div class="audio-waves">
-            <div class="wave"></div>
-            <div class="wave"></div>
-            <div class="wave"></div>
-        </div>
-        
         <div class="connection-status" id="connectionStatus">
             <div class="status-dot"></div>
             <span>Desconectado</span>
@@ -364,19 +330,6 @@
                 <button class="play-btn" id="playBtn">▶</button>
             </div>
             
-            <div class="visualizer" id="visualizer">
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-                <div class="visualizer-bar"></div>
-            </div>
-            
             <div class="volume-control">
                 <span class="volume-icon">🔈</span>
                 <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
@@ -384,6 +337,16 @@
             </div>
             
             <p class="status" id="status">Presiona play para comenzar</p>
+            
+            <div class="troubleshooting" id="troubleshooting">
+                <h4>¿No puedes escuchar?</h4>
+                <ul>
+                    <li>Verifica que tu volumen esté encendido</li>
+                    <li>Prueba con otro navegador (Chrome, Firefox)</li>
+                    <li>Recarga la página</li>
+                    <li>Si usas móvil, intenta con WiFi y datos</li>
+                </ul>
+            </div>
             
             <audio id="radioPlayer">
                 <source src="https://uk15freenew.listen2myradio.com/live.mp3?typeportmount=s1_29779_stream_804804125" type="audio/mpeg">
@@ -398,11 +361,10 @@
         const playBtn = document.getElementById('playBtn');
         const volumeControl = document.getElementById('volume');
         const statusText = document.getElementById('status');
-        const visualizer = document.getElementById('visualizer');
-        const visualizerBars = document.querySelectorAll('.visualizer-bar');
         const connectionStatus = document.getElementById('connectionStatus');
         const statusDot = connectionStatus.querySelector('.status-dot');
         const statusTextElem = connectionStatus.querySelector('span');
+        const troubleshooting = document.getElementById('troubleshooting');
         
         // Estado de conexión
         function updateConnectionStatus(connected) {
@@ -420,12 +382,19 @@
             if (player.paused) {
                 statusText.innerHTML = '<span class="loading"></span> Conectando...';
                 
+                // Mostrar sugerencias de solución después de 5 segundos
+                const showTroubleshooting = setTimeout(() => {
+                    troubleshooting.style.display = 'block';
+                }, 5000);
+                
                 // Intentar reproducir
                 player.play().then(() => {
                     playBtn.textContent = '❚❚';
                     playBtn.classList.add('playing');
                     statusText.textContent = 'Reproduciendo...';
                     updateConnectionStatus(true);
+                    troubleshooting.style.display = 'none';
+                    clearTimeout(showTroubleshooting);
                     
                     // Actualizar estado de conexión cada 10 segundos
                     setInterval(() => {
@@ -436,6 +405,7 @@
                     
                 }).catch(error => {
                     handlePlaybackError(error);
+                    clearTimeout(showTroubleshooting);
                 });
             } else {
                 player.pause();
@@ -443,6 +413,7 @@
                 playBtn.classList.remove('playing');
                 statusText.textContent = 'Pausado';
                 updateConnectionStatus(false);
+                troubleshooting.style.display = 'none';
             }
         }
         
@@ -451,6 +422,7 @@
             console.error('Error de reproducción:', error);
             statusText.innerHTML = '<span class="loading"></span> Error: Haz clic para intentar de nuevo';
             updateConnectionStatus(false);
+            troubleshooting.style.display = 'block';
             
             // Reintentar después de 3 segundos
             setTimeout(() => {
@@ -460,26 +432,21 @@
             }, 3000);
         }
         
-        // Simular visualizador de audio
-        function simulateVisualizer() {
-            if (!player.paused) {
-                visualizerBars.forEach(bar => {
-                    const randomHeight = 10 + Math.random() * 50;
-                    bar.style.height = `${randomHeight}px`;
-                    
-                    // Cambiar opacidad basada en la altura
-                    const opacity = 0.4 + (randomHeight / 60) * 0.6;
-                    bar.style.opacity = opacity;
+        // Verificar la disponibilidad del stream
+        function checkStreamAvailability() {
+            fetch(player.src, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Stream disponible');
+                    } else {
+                        statusText.textContent = 'Servidor de radio no disponible';
+                        troubleshooting.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    statusText.textContent = 'Error de red';
+                    troubleshooting.style.display = 'block';
                 });
-            } else {
-                // Resetear visualizador cuando está pausado
-                visualizerBars.forEach(bar => {
-                    bar.style.height = '10px';
-                    bar.style.opacity = '0.3';
-                });
-            }
-            
-            setTimeout(simulateVisualizer, 100);
         }
         
         // Inicializar el reproductor
@@ -497,12 +464,14 @@
             player.addEventListener('error', () => {
                 statusText.textContent = 'Error al conectar con el servidor de radio';
                 updateConnectionStatus(false);
+                troubleshooting.style.display = 'block';
             });
             
             player.addEventListener('ended', () => {
                 statusText.textContent = 'Transmisión finalizada';
                 playBtn.textContent = '▶';
                 updateConnectionStatus(false);
+                troubleshooting.style.display = 'block';
             });
             
             player.addEventListener('waiting', () => {
@@ -512,14 +481,11 @@
             player.addEventListener('playing', () => {
                 statusText.textContent = 'Reproduciendo...';
                 updateConnectionStatus(true);
+                troubleshooting.style.display = 'none';
             });
             
-            // Iniciar simulador de visualizador
-            simulateVisualizer();
-            
-            // Precargar la imagen para mejor experiencia
-            const img = new Image();
-            img.src = "https://scontent.fmex4-2.fna.fbcdn.net/v/t39.30808-6/497517926_687174144010714_8032021550529408539_n.png";
+            // Verificar disponibilidad del stream al cargar
+            checkStreamAvailability();
         }
         
         // Inicializar cuando el DOM esté listo
