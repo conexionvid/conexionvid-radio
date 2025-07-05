@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexion Vid Radio - Player Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --highlight-color: #4CAF50;
+            --background-color: #121212;
+            --card-color: #1e1e1e;
+            --text-color: #ffffff;
+            --secondary-text: #b3b3b3;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--background-color);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .player-container {
+            width: 300px;
+            background: var(--card-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .cover-container {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.9);
+        }
+        
+        .cover-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .radio-info {
+            text-align: center;
+        }
+        
+        .radio-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
+        
+        .song-info {
+            font-size: 14px;
+            color: var(--secondary-text);
+            margin: 3px 0;
+        }
+        
+        .controls-container {
+            padding: 20px;
+        }
+        
+        .main-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .play-btn {
+            background: var(--highlight-color);
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .volume-icon {
+            margin: 0 10px;
+            font-size: 16px;
+            color: var(--secondary-text);
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--highlight-color);
+            cursor: pointer;
+        }
+        
+        .status {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--secondary-text);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container">
+        <div class="cover-container">
+            <img class="cover-image" src="https://scontent.fmex4-2.fna.fbcdn.net/v/t39.30808-6/497517926_687174144010714_8032021550529408539_n.png?_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=feYy70R5Aa0Q7kNvwFqsvqt&_nc_oc=AdmtM2Iu7KzR5OCA7bqAE93-k8OXhXhvPqYx8sxNnflrct4Vu09-KEA9DU-1Hgdm3ck&_nc_zt=23&_nc_ht=scontent.fmex4-2.fna&_nc_gid=MUQYsFcTJWSE9uP3_PjXnw&oh=00_AfQsAyYNU7pCoNz11uYXu4Y02JXVmpIngPBbx_JneXJyGw&oe=686F40D8" alt="Conexion Vid-Radio">
+            <div class="cover-overlay">
+                <div class="radio-info">
+                    <h2 class="radio-name">Conexion Vid-Radio</h2>
+                    <div class="song-info">Transmitiendo en vivo</div>
+                    <div class="song-info">Veracruz, México</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-container">
+            <div class="main-controls">
+                <button class="control-btn play-btn" id="playBtn">▶</button>
+            </div>
+            
+            <div class="volume-control">
+                <span class="volume-icon">🔈</span>
+                <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
+                <span class="volume-icon">🔊</span>
+            </div>
+            
+            <p class="status" id="status">Presiona play para comenzar</p>
+            
+            <!-- Reproductor de audio oculto -->
+            <audio id="radioPlayer">
+                <source src="https://uk15freenew.listen2myradio.com/live.mp3?typeportmount=s1_29779_stream_804804125" type="audio/mpeg">
+                Tu navegador no soporta el elemento de audio.
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const player = document.getElementById('radioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const volumeControl = document.getElementById('volume');
+        const statusText = document.getElementById('status');
+        
+        // Solución definitiva para el problema de reproducción
+        function setupPlayer() {
+            // Primero cargamos el stream sin autoplay
+            player.load();
+            
+            // Configuramos el volumen inicial
+            player.volume = volumeControl.value;
+            
+            // Control de reproducción mejorado
+            playBtn.addEventListener('click', function() {
+                // Solo intentamos reproducir si está pausado
+                if (player.paused) {
+                    statusText.textContent = "Conectando...";
+                    
+                    // Forzamos un nuevo load() antes de play() para evitar caché
+                    player.load();
+                    
+                    player.play().then(() => {
+                        playBtn.textContent = '❚❚';
+                        statusText.textContent = 'Reproduciendo...';
+                    }).catch(error => {
+                        // Solución final: si falla, mostramos el control nativo
+                        statusText.textContent = 'Haz clic aquí abajo para activar';
+                        player.controls = true;
+                        player.style.display = 'block';
+                        player.style.width = '100%';
+                        player.style.marginTop = '10px';
+                    });
+                } else {
+                    player.pause();
+                    playBtn.textContent = '▶';
+                    statusText.textContent = 'Pausado';
+                }
+            });
+            
+            // Control de volumen
+            volumeControl.addEventListener('input', function() {
+                player.volume = this.value;
+            });
+            
+            // Manejo de errores
+            player.addEventListener('error', function() {
+                statusText.textContent = 'Error al conectar. Recarga la página.';
+            });
+        }
+        
+        // Inicializamos cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', setupPlayer);
+    </script>
+</body>
+</html>
