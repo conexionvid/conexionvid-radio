@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexion Vid-Radio - Player Premium</title>
+    <meta name="theme-color" content="#4CAF50">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* [Mantener todos tus estilos CSS actuales] */
+        /* ... */
+    </style>
+</head>
+<body>
+    <!-- [Mantener toda tu estructura HTML actual] -->
+    <!-- ... -->
+
+    <script>
+        // Elementos del DOM
+        const player = document.getElementById('radioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const volumeControl = document.getElementById('volume');
+        const statusText = document.getElementById('status');
+        
+        // 1. Configurar Media Session API (para controles en pantalla bloqueada)
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: 'Conexion Vid-Radio',
+                artist: 'Veracruz, México',
+                artwork: [
+                    { src: 'https://scontent.fmex4-2.fna.fbcdn.net/v/t39.30808-6/497517926_687174144010714_8032021550529408539_n.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+            
+            navigator.mediaSession.setActionHandler('play', () => {
+                player.play();
+                playBtn.textContent = '❚❚';
+                statusText.textContent = 'Reproduciendo...';
+            });
+            
+            navigator.mediaSession.setActionHandler('pause', () => {
+                player.pause();
+                playBtn.textContent = '▶';
+                statusText.textContent = 'Pausado';
+            });
+        }
+
+        // 2. Registrar Service Worker para ejecución en segundo plano
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(registration => {
+                console.log('ServiceWorker registrado con éxito');
+            }).catch(error => {
+                console.log('Error al registrar ServiceWorker:', error);
+            });
+        }
+
+        // 3. Configurar AudioContext para evitar suspension
+        let audioContext;
+        
+        function setupAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaElementSource(player);
+                source.connect(audioContext.destination);
+            }
+            
+            // Mantener activo el audio en iOS
+            document.addEventListener('click', function() {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }, { once: true });
+        }
+
+        // 4. Control de reproducción mejorado
+        function setupPlayer() {
+            player.load();
+            player.volume = volumeControl.value;
+            
+            playBtn.addEventListener('click', function() {
+                if (player.paused) {
+                    statusText.textContent = "Conectando...";
+                    
+                    // Activar AudioContext en iOS
+                    if (!audioContext) {
+                        setupAudioContext();
+                    }
+                    
+                    player.play().then(() => {
+                        playBtn.textContent = '❚❚';
+                        statusText.textContent = 'Reproduciendo...';
+                        
+                        // Actualizar estado de Media Session
+                        if ('mediaSession' in navigator) {
+                            navigator.mediaSession.playbackState = "playing";
+                        }
+                    }).catch(error => {
+                        statusText.textContent = 'Haz clic aquí abajo para activar';
+                        player.controls = true;
+                        player.style.display = 'block';
+                        player.style.width = '100%';
+                        player.style.marginTop = '10px';
+                    });
+                } else {
+                    player.pause();
+                    playBtn.textContent = '▶';
+                    statusText.textContent = 'Pausado';
+                    
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.playbackState = "paused";
+                    }
+                }
+            });
+            
+            volumeControl.addEventListener('input', function() {
+                player.volume = this.value;
+            });
+            
+            player.addEventListener('error', function() {
+                statusText.textContent = 'Error al conectar. Recarga la página.';
+            });
+        }
+
+        // 5. Eventos para manejar cambios de visibilidad
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !player.paused) {
+                // Mantener reproducción cuando la pestaña está en segundo plano
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen').catch(e => {});
+                }
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', setupPlayer);
+    </script>
+</body>
+</html>
