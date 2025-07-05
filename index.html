@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conexion Vid-Radio - Player Premium</title>
     <meta name="theme-color" content="#4CAF50">
-    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --highlight-color: #4CAF50;
+            --highlight-color: rgba(76, 175, 80, 0.9);
             --background-color: #121212;
-            --card-color: #1e1e1e;
-            --text-color: #ffffff;
-            --secondary-text: #b3b3b3;
+            --card-color: rgba(30, 30, 30, 0.7);
+            --text-color: rgba(255, 255, 255, 0.9);
+            --secondary-text: rgba(179, 179, 179, 0.8);
+            --glass-effect: rgba(255, 255, 255, 0.05);
         }
         
         * {
@@ -23,7 +23,7 @@
         }
         
         body {
-            background: var(--background-color);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             font-family: 'Montserrat', sans-serif;
             display: flex;
             justify-content: center;
@@ -31,6 +31,21 @@
             min-height: 100vh;
             color: var(--text-color);
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(76, 175, 80, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(33, 150, 243, 0.1) 0%, transparent 30%);
+            z-index: -1;
         }
         
         .player-container {
@@ -38,19 +53,20 @@
             max-width: 400px;
             background: var(--card-color);
             border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-        
-        .player-container:hover {
-            transform: translateY(-5px);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-effect);
         }
         
         .cover-container {
             position: relative;
             height: 300px;
             overflow: hidden;
+            border-bottom: 1px solid var(--glass-effect);
         }
         
         .cover-image {
@@ -67,7 +83,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -85,6 +101,8 @@
             font-weight: 700;
             margin: 0 0 8px 0;
             text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+            color: #fff;
+            letter-spacing: 0.5px;
         }
         
         .song-info {
@@ -95,6 +113,7 @@
         
         .controls-container {
             padding: 25px;
+            position: relative;
         }
         
         .main-controls {
@@ -118,6 +137,9 @@
             align-items: center;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            position: relative;
+            z-index: 2;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         
         .play-btn:hover {
@@ -126,7 +148,7 @@
         }
         
         .play-btn.playing {
-            background: #f44336;
+            background: rgba(244, 67, 54, 0.9);
             box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
         }
         
@@ -135,6 +157,9 @@
             align-items: center;
             margin-top: 20px;
             gap: 15px;
+            background: var(--glass-effect);
+            padding: 12px 15px;
+            border-radius: 50px;
         }
         
         .volume-icon {
@@ -149,13 +174,13 @@
             width: 100%;
             height: 6px;
             border-radius: 3px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.1);
             outline: none;
             transition: background 0.3s;
         }
         
         input[type="range"]:hover {
-            background: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.2);
         }
         
         input[type="range"]::-webkit-slider-thumb {
@@ -167,6 +192,7 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
         input[type="range"]::-webkit-slider-thumb:hover {
@@ -181,12 +207,9 @@
             color: var(--secondary-text);
             font-style: italic;
             min-height: 20px;
-        }
-        
-        .native-player {
-            display: none;
-            width: 100%;
-            margin-top: 15px;
+            background: var(--glass-effect);
+            padding: 10px;
+            border-radius: 8px;
         }
         
         .visualizer {
@@ -201,9 +224,10 @@
         
         .visualizer-bar {
             width: 8px;
-            background: var(--highlight-color);
+            background: linear-gradient(to top, var(--highlight-color), rgba(76, 175, 80, 0.3));
             border-radius: 4px 4px 0 0;
             transition: height 0.1s ease;
+            height: 10px;
         }
         
         .loading {
@@ -215,10 +239,79 @@
             border-top-color: var(--highlight-color);
             animation: spin 1s linear infinite;
             margin-right: 10px;
+            vertical-align: middle;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--secondary-text);
+            background: var(--glass-effect);
+            padding: 5px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f44336;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-dot.connected {
+            background: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+        }
+        
+        .audio-waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            opacity: 0.1;
+        }
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="%234CAF50" stroke-width="0.5"/></svg>') repeat-x;
+            animation: wave-animation 15s linear infinite;
+            opacity: 0.3;
+        }
+        
+        .wave:nth-child(2) {
+            animation-delay: -5s;
+            bottom: 10px;
+            opacity: 0.2;
+        }
+        
+        .wave:nth-child(3) {
+            animation-delay: -10s;
+            bottom: 20px;
+            opacity: 0.1;
+        }
+        
+        @keyframes wave-animation {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
         
         @media (max-width: 480px) {
@@ -244,6 +337,17 @@
 </head>
 <body>
     <div class="player-container">
+        <div class="audio-waves">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+        
+        <div class="connection-status" id="connectionStatus">
+            <div class="status-dot"></div>
+            <span>Desconectado</span>
+        </div>
+        
         <div class="cover-container">
             <img class="cover-image" src="https://scontent.fmex4-2.fna.fbcdn.net/v/t39.30808-6/497517926_687174144010714_8032021550529408539_n.png?_nc_cat=110&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=feYy70R5Aa0Q7kNvwFqsvqt&_nc_oc=AdmtM2Iu7KzR5OCA7bqAE93-k8OXhXhvPqYx8sxNnflrct4Vu09-KEA9DU-1Hgdm3ck&_nc_zt=23&_nc_ht=scontent.fmex4-2.fna&_nc_gid=MUQYsFcTJWSE9uP3_PjXnw&oh=00_AfQsAyYNU7pCoNz11uYXu4Y02JXVmpIngPBbx_JneXJyGw&oe=686F40D8" alt="Conexion Vid-Radio">
             <div class="cover-overlay">
@@ -296,105 +400,57 @@
         const statusText = document.getElementById('status');
         const visualizer = document.getElementById('visualizer');
         const visualizerBars = document.querySelectorAll('.visualizer-bar');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const statusDot = connectionStatus.querySelector('.status-dot');
+        const statusTextElem = connectionStatus.querySelector('span');
         
-        // Variables para el visualizador
-        let audioContext;
-        let analyser;
-        let dataArray;
-        let isPlaying = false;
-        let animationId;
-        
-        // Inicializar el visualizador de audio
-        function initVisualizer() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                analyser.fftSize = 64;
-                
-                const source = audioContext.createMediaElementSource(player);
-                source.connect(analyser);
-                analyser.connect(audioContext.destination);
-                
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                animateVisualizer();
-            } catch (error) {
-                console.error('Error al inicializar visualizador:', error);
-                visualizer.style.display = 'none';
+        // Estado de conexión
+        function updateConnectionStatus(connected) {
+            if (connected) {
+                statusDot.classList.add('connected');
+                statusTextElem.textContent = 'Conectado';
+            } else {
+                statusDot.classList.remove('connected');
+                statusTextElem.textContent = 'Desconectado';
             }
-        }
-        
-        // Animar el visualizador
-        function animateVisualizer() {
-            if (!isPlaying) return;
-            
-            analyser.getByteFrequencyData(dataArray);
-            
-            for (let i = 0; i < visualizerBars.length; i++) {
-                const value = dataArray[i % dataArray.length] / 255;
-                const height = 10 + value * 50;
-                visualizerBars[i].style.height = `${height}px`;
-                
-                // Efecto multicolor
-                if (i % 3 === 0) {
-                    visualizerBars[i].style.backgroundColor = `rgba(76, 175, 80, ${0.7 + value/3})`;
-                } else if (i % 3 === 1) {
-                    visualizerBars[i].style.backgroundColor = `rgba(33, 150, 243, ${0.7 + value/3})`;
-                } else {
-                    visualizerBars[i].style.backgroundColor = `rgba(244, 67, 54, ${0.7 + value/3})`;
-                }
-            }
-            
-            animationId = requestAnimationFrame(animateVisualizer);
         }
         
         // Control de reproducción
         function togglePlayback() {
             if (player.paused) {
+                statusText.innerHTML = '<span class="loading"></span> Conectando...';
+                
+                // Intentar reproducir
                 player.play().then(() => {
-                    isPlaying = true;
                     playBtn.textContent = '❚❚';
                     playBtn.classList.add('playing');
                     statusText.textContent = 'Reproduciendo...';
+                    updateConnectionStatus(true);
                     
-                    if (!audioContext) {
-                        initVisualizer();
-                    } else if (audioContext.state === 'suspended') {
-                        audioContext.resume();
-                    }
+                    // Actualizar estado de conexión cada 10 segundos
+                    setInterval(() => {
+                        if (!player.paused) {
+                            updateConnectionStatus(true);
+                        }
+                    }, 10000);
                     
-                    // Actualizar Media Session API si está disponible
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.playbackState = "playing";
-                    }
                 }).catch(error => {
                     handlePlaybackError(error);
                 });
             } else {
                 player.pause();
-                isPlaying = false;
                 playBtn.textContent = '▶';
                 playBtn.classList.remove('playing');
                 statusText.textContent = 'Pausado';
-                
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                }
-                
-                // Resetear visualizador
-                visualizerBars.forEach(bar => {
-                    bar.style.height = '10px';
-                });
-                
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = "paused";
-                }
+                updateConnectionStatus(false);
             }
         }
         
         // Manejar errores de reproducción
         function handlePlaybackError(error) {
             console.error('Error de reproducción:', error);
-            statusText.innerHTML = `<span class="loading"></span> Error: Haz clic para intentar de nuevo`;
+            statusText.innerHTML = '<span class="loading"></span> Error: Haz clic para intentar de nuevo';
+            updateConnectionStatus(false);
             
             // Reintentar después de 3 segundos
             setTimeout(() => {
@@ -404,24 +460,26 @@
             }, 3000);
         }
         
-        // Configurar Media Session API
-        function setupMediaSession() {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: 'Conexion Vid-Radio',
-                    artist: 'Veracruz, México',
-                    artwork: [
-                        { 
-                            src: 'https://scontent.fmex4-2.fna.fbcdn.net/v/t39.30808-6/497517926_687174144010714_8032021550529408539_n.png', 
-                            sizes: '512x512', 
-                            type: 'image/png' 
-                        }
-                    ]
+        // Simular visualizador de audio
+        function simulateVisualizer() {
+            if (!player.paused) {
+                visualizerBars.forEach(bar => {
+                    const randomHeight = 10 + Math.random() * 50;
+                    bar.style.height = `${randomHeight}px`;
+                    
+                    // Cambiar opacidad basada en la altura
+                    const opacity = 0.4 + (randomHeight / 60) * 0.6;
+                    bar.style.opacity = opacity;
                 });
-                
-                navigator.mediaSession.setActionHandler('play', togglePlayback);
-                navigator.mediaSession.setActionHandler('pause', togglePlayback);
+            } else {
+                // Resetear visualizador cuando está pausado
+                visualizerBars.forEach(bar => {
+                    bar.style.height = '10px';
+                    bar.style.opacity = '0.3';
+                });
             }
+            
+            setTimeout(simulateVisualizer, 100);
         }
         
         // Inicializar el reproductor
@@ -438,24 +496,26 @@
             
             player.addEventListener('error', () => {
                 statusText.textContent = 'Error al conectar con el servidor de radio';
+                updateConnectionStatus(false);
             });
             
             player.addEventListener('ended', () => {
                 statusText.textContent = 'Transmisión finalizada';
-                isPlaying = false;
                 playBtn.textContent = '▶';
+                updateConnectionStatus(false);
             });
             
             player.addEventListener('waiting', () => {
-                statusText.innerHTML = `<span class="loading"></span> Buffering...`;
+                statusText.innerHTML = '<span class="loading"></span> Buffering...';
             });
             
             player.addEventListener('playing', () => {
                 statusText.textContent = 'Reproduciendo...';
+                updateConnectionStatus(true);
             });
             
-            // Configurar Media Session
-            setupMediaSession();
+            // Iniciar simulador de visualizador
+            simulateVisualizer();
             
             // Precargar la imagen para mejor experiencia
             const img = new Image();
